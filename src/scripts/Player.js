@@ -443,7 +443,7 @@ export class Player
         const lineColor = 0x32CD32;
         const altLineColor = 0xfb6163;
 
-        const compareVal = 1 - 3/Globals.turnTimerVal;
+        const compareVal = 1 - 2/Globals.turnTimerVal;
 
         if(this.updateTimerTween != null && this.updateTimerTween != undefined && this.updateTimerTween.isPlaying)
             this.updateTimerTween.stop();    
@@ -474,6 +474,7 @@ export class Player
         this.diceContainer.alpha = 1;
         this.animatedDice.alpha = 1;
         this.hasTurn = true;
+        this.lastProgress.x = 0;
     }
 
     removeTurn()
@@ -492,6 +493,22 @@ export class Player
 
             
         this.graphicRadial.clear();
+    }
+
+    resetTimer()
+    {
+        if(this.updateTimerTween != null && this.updateTimerTween != undefined && this.updateTimerTween.isPlaying)
+        this.updateTimerTween.stop();    
+
+        
+        this.graphicRadial.clear();
+        this.graphicRadial.beginFill(0xff0000, 0);
+        this.graphicRadial.lineStyle(35, 0x00ff00, 0.5);
+        this.graphicRadial.arc(0, 0, 60, 2 * Math.PI , 2 * Math.PI * 0.0001, true);
+        this.graphicRadial.endFill();
+
+        this.lastProgress.x = 0;
+
     }
 
     

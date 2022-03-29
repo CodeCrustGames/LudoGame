@@ -49,8 +49,13 @@ export class GameScene {
 
 		this.addSpineAnimation();
 
+		this.lastProgress = {x : 0};
 		
 		this.turnChanged(Globals.gameData.currentTurn);
+
+		// // let versionText = new DebugText("v0.4.1", 10, 10, "#fff", 10, "Luckiest Guy");
+		// versionText.anchor.set(0, 0);
+		// this.sceneContainer.addChild(versionText);
 
 
 
@@ -59,7 +64,6 @@ export class GameScene {
 		//	this.updateVisualPerTick();
 		
 		
-		this.lastProgress = {x : 0};
 		//this.updateProgress(0.5)
 
 	}
@@ -75,16 +79,29 @@ export class GameScene {
 		} else if (msgType == "turnTimer")
 		{
 			if(msgParams.id in this.players)
-				this.players[msgParams.id].updateTimer(1 - (msgParams.time/Globals.turnTimerVal));
+				this.players[msgParams.id].updateTimer(1 - ((msgParams.time-1)/Globals.turnTimerVal));
 
 			if(Globals.gameData.plId == msgParams.id)
 			{
 
-				this.updateProgress(1 - (msgParams.time / Globals.turnTimerVal));
+				this.updateProgress(1 - ((msgParams.time-1) / Globals.turnTimerVal));
 			}
 		} else if (msgType == "rollDiceResult")
 		{
 			
+			{
+
+				if(msgParams.id in this.players)
+				this.players[msgParams.id].resetTimer();
+
+				this.radialGraphic.clear();
+				this.radialGraphic.beginFill();
+				this.radialGraphic.lineStyle(50,0x00ff00, 0.5);
+				this.radialGraphic.arc(0, 0, 60, 0, (Math.PI * 2) * 0.0001, true);
+				this.radialGraphic.endFill();
+				this.lastProgress.x = 0;
+			}
+
 			this.players[msgParams.id].setDice(msgParams.value);
 			this.players[msgParams.id].stopDiceAnimation(msgParams.value);
 			
@@ -680,8 +697,9 @@ export class GameScene {
 		const lineColor = 0x00FF00;
         const altLineColor = 0xd44143;
 
-		const compareVal = 1 - 3 / Globals.turnTimerVal;
+		const compareVal = 1 - 2 / Globals.turnTimerVal;
 		
+
 		const tween = new TWEEN.Tween(this.lastProgress)
         .to({x : progress}, 999)
         .onUpdate(
@@ -736,6 +754,9 @@ export class GameScene {
 
 
 		this.interactiveDiceContainer.renderable = value;
+
+		
+
 		this.interactiveDiceContainer.alpha = value ? 1 : 0.5;
 		this.interactiveDiceContainer.interactive = value;
 	}
@@ -1014,6 +1035,9 @@ export class GameScene {
 
 	activateDiceRolling(again) {
 		//this.players[Globals.gameData.plId].activateDiceRolling();
+		this.radialGraphic.clear();
+
+		this.lastProgress.x = 0;
 		this.setDiceInteractive(true);
 		
 		
@@ -1029,6 +1053,7 @@ export class GameScene {
 
 	deactivateDiceRolling() {
 		this.setDiceInteractive(false);
+
 
 
 	}
