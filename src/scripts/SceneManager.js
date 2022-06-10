@@ -9,11 +9,18 @@ export class SceneManager {
     constructor() {
         this.container = new PIXI.Container();
         this.scene = null;
+
+
+        this.showTableId  = new DebugText("", 0, 0, "#fff");
+        this.showTableId.x += this.showTableId.width/2;
+        this.showTableId.y += this.showTableId.height;
+        this.container.addChild(this.showTableId);
     }
 
     start(scene) {
         if (this.scene) {
             this.scene.sceneContainer.destroy();
+            this.scene = null;
         }
 
         this.scene = scene;
@@ -26,6 +33,8 @@ export class SceneManager {
                 this.drawImageAbove();
             }
     }
+
+
 
     update(dt) {
         TWEEN.update();

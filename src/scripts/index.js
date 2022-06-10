@@ -24,6 +24,20 @@ global.updateFromNative = function updateFromNative(message)
     Globals.emitter.Call("socketConnection", {});
 }
 
+
+
+// const msgObj = {
+//     "token" : {
+//         "playerID" : "230773",
+//         "tableTypeID" : "4"
+//     },
+//     "username" : "Player 1",
+//     "entryFee" : "50.00",
+//     "useravatar" : "https://cccdn.b-cdn.net/1584464368856.png",
+// }
+
+// console.log(JSON.stringify(msgObj)+ "")
+
 //Globals.socket = new Socket();
 
 

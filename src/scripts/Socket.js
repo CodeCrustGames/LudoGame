@@ -1,5 +1,5 @@
 import { FinalScene } from "./FinalScene";
-import { GameEndStates, Globals } from "./Globals";
+import { CurrentGameData, GameEndStates, Globals } from "./Globals";
 
 export class Socket {
 	constructor(uuid, name, entryFee, tableTypeID, useravatar, url = null) {
@@ -22,9 +22,10 @@ export class Socket {
 
 			const apiURL = "https://api.gamesappludo.com/api/getserver";
 			// const apiURL = "https://apiuat.gamesappludo.com/api/getserver";
-			// const apiURL = "http://localhost:8080/api/getserver";
+			// const apiURL = "http://localhost:8081/api/getserver";
 
 			this.socket = null
+			console.log(connectionData)
 			fetch(apiURL, {
 					method: 'POST', // or 'PUT'
 					headers: {
@@ -72,10 +73,15 @@ export class Socket {
 
 						const msg = JSON.parse(e.data);
 						if (msg.t == "joined") {
+							
+							Globals.hasJoinedTable = true;
 
 							Globals.gameData.tempPlayerData = {
 
 							};
+
+							CurrentGameData.tableGameID = msg.tID;
+							Globals.emitter?.Call("updateTableGameID");
 
 							Globals.gameData.bal = msg.bal;
 
@@ -97,7 +103,7 @@ export class Socket {
 								// }
 							});
 
-							Globals.emitter.Call("joined", {});
+							Globals.emitter.Call("joined", {plId : msg.plId});
 
 						} else if (msg.t == "pAdd") {
 							const plData = {
@@ -105,6 +111,8 @@ export class Socket {
 								pImage: msg.pImage,
 								plId: msg.plId
 							};
+
+			
 
 							Globals.gameData.tempPlayerData[msg.plId] = plData;
 

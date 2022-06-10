@@ -21,6 +21,17 @@ export const Globals = {
     },
     gameEndState : GameEndStates.NONE,
     potData : [],
-    turnTimerVal : 8
+    turnTimerVal : 8,
+    hasJoinedTable : false,
 };
 
+
+export const CurrentGameData = {
+    tableGameID : "",
+}
+
+
+
+
+
+export const utf8_to_b64 = (str) => window.btoa(encodeURIComponent(str));

@@ -4,8 +4,10 @@ import { Background } from "./Background";
 import { DebugCircle } from "./DebugCircle";
 import { DebugText } from "./DebugText";
 import { GameScene } from "./GameScene";
-import { Globals } from "./Globals";
+import { CurrentGameData, Globals, utf8_to_b64 } from "./Globals";
 import TWEEN from "@tweenjs/tween.js";
+import { Button } from "./Button";
+import { MainScene } from "./MainScene";
 
 
 export class GameEndScene {
@@ -41,7 +43,65 @@ export class GameEndScene {
 
        
         this.addExitButton();
+
+        const btnPos = {
+			x: config.logicalWidth / 2,
+			y: config.logicalHeight - 100
+		}
+		this.switchBtn = new Button(Globals.resources.yellowBtn.texture, "Switch", 0xffffff, btnPos);
+        this.switchBtn.buttonLabel.style.fontSize = 30;
+        this.switchBtn.scale.set(1.6);
+		this.switchBtn.setActive(false);
+		this.switchBtn.on("pointerdown", this.onSwitchBtnClick.bind(this));
+		this.container.addChild(this.switchBtn);
+
+        this.createTableGameID();
+
+
     }
+
+    createTableGameID()
+	{
+		
+		this.tableIdText = new DebugText(utf8_to_b64(CurrentGameData.tableGameID), 0, 0, "#3657ff", 24, "Luckiest Guy");
+		this.tableIdText.anchor.set(1);
+		this.tableIdText.x  = config.logicalWidth;
+		this.tableIdText.y = config.logicalHeight
+		this.container.addChild(this.tableIdText);
+	}
+
+	updateTableGameID()
+	{
+		this.tableIdText.text = utf8_to_b64(CurrentGameData.tableGameID);
+	}
+
+
+    onSwitchBtnClick()
+	{
+		if(Globals.gameData.plId == undefined)
+			return;
+
+		this.switchBtn.setActive(false);
+
+
+        const payload = {
+            t : "switchGame",
+            plId : Globals.gameData.plId
+        }
+
+        Globals.socket?.sendMessage(payload);
+
+		this.resetAllData();
+        
+        Globals.scene.start(new MainScene(true));
+
+	}
+
+	resetAllData()
+	{
+		Globals.hasJoinedTable = false;
+
+	}
 
     recievedMessage(msgType, msgParams)
     {
@@ -56,9 +116,22 @@ export class GameEndScene {
 
 
             if(Object.keys(Globals.gameData.tempPlayerData).length == 1)
+            {
                 this.waitingText.text = "Waiting for Others.. " + msgParams.data;
+                this.switchBtn.setActive(false);
+            }
             else
+            {
                 this.waitingText.text = "Game starting in.. " + msgParams.data;
+
+                if(msgParams.data <= 2)
+                {
+                    this.switchBtn.setActive(false);
+                } else
+                {
+		            this.switchBtn.setActive(true);
+                }
+            }
         }else if (msgType == "playerJoined")
         {
             this.activateAvatarImage(Globals.gameData.tempPlayerData[msgParams.index].pImage, this.avatars[msgParams.index]);
@@ -67,6 +140,9 @@ export class GameEndScene {
         {
             delete Globals.gameData.tempPlayerData[msgParams.id];
             this.removePlayerAvatar(msgParams.id);
+        } else if (msgType == "updateTableGameID")
+        {
+            this.updateTableGameID();
         }
     }
 
@@ -212,8 +288,8 @@ export class GameEndScene {
         // exitBtnText.style.dropShadow = true;
         // exitBtnText.style.dropShadowBlur = 5;
         // exitBtnText.style.dropShadowDistance = 6;
-        exitBtnText.style.stroke = "black";
-        exitBtnText.style.strokeThickness = 5;
+        exitBtnText.style.stroke = "#7e3e01";
+        exitBtnText.style.strokeThickness = 6;
 
 
 

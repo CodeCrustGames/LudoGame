@@ -2,15 +2,16 @@ import * as PIXI from "pixi.js";
 import {config} from "./appConfig";
 import { Background } from "./Background";
 import { GameScene } from "./GameScene";
-import { Globals } from "./Globals";
+import { CurrentGameData, Globals, utf8_to_b64 } from "./Globals";
 import TWEEN from "@tweenjs/tween.js";
 import { DebugText } from "./DebugText";
 import { Socket } from "./Socket";
 import { Prompt } from "./Prompt";
 import { GameEndScene } from "./GameEndScene";
+import { Button } from "./Button";
 
 export class MainScene {
-	constructor() {
+	constructor(hasSwitched = false) {
 
 		this.sceneContainer = new PIXI.Container();
 
@@ -28,8 +29,8 @@ export class MainScene {
 		// this.createButton();
 		// global.activateScene = () =>  this.createButton();
 
-		 //this.createWaitingScreen();
-		//this.createAvatars();
+		//  this.createWaitingScreen();
+		// this.createAvatars();
 		// {
 		// 	const verText = new DebugText("Ver: 0.02", 0, 0, "#fff");
 		// 	verText.x += verText.width/2;
@@ -38,26 +39,112 @@ export class MainScene {
 		// }
 
 		this.sceneContainer.addChild(this.container);
+
+
+		this.createTableGameID();
+
+		const btnPos = {
+			x: config.logicalWidth / 2,
+			y: config.logicalHeight / 2 + 250
+		}
+		this.switchBtn = new Button(Globals.resources.yellowBtn.texture, "Switch", 0xffffff, btnPos);
+		this.switchBtn.setActive(false);
+		this.switchBtn.on("pointerdown", this.onSwitchBtnClick.bind(this));
+		this.container.addChild(this.switchBtn);
+
+		console.log("Scene Started : MainScene" )
+
+		if(hasSwitched)
+			this.triggerButtonActive();
+
+	}
+
+	onSwitchBtnClick()
+	{
+		if(this.tempPlId == undefined)
+			return;
+
+		this.switchBtn.setActive(false);
+
+
+        const payload = {
+            t : "switchGame",
+            plId : this.tempPlId
+        }
+
+        Globals.socket?.sendMessage(payload);
+
+		this.resetAllData();
+        
+		Globals.scene.start(new MainScene(true));
+	}
+
+	resetAllData()
+	{
+		Globals.hasJoinedTable = false;
+	}
+
+	createTableGameID()
+	{
+		
+		this.tableIdText = new DebugText(utf8_to_b64(CurrentGameData.tableGameID), 0, 0, "#3657ff", 24, "Luckiest Guy");
+		this.tableIdText.anchor.set(1);
+		this.tableIdText.x  = config.logicalWidth;
+		this.tableIdText.y = config.logicalHeight
+		this.container.addChild(this.tableIdText);
+	}
+
+	updateTableGameID()
+	{
+		this.tableIdText.text = utf8_to_b64(CurrentGameData.tableGameID);
 	}
 
 
 	recievedMessage(msgType, msgParams) {
 		if (msgType == "gameStart") {
+			this.switchBtn.setActive(false);
 			Globals.gameData.currentTurn = msgParams.turn;
 			console.log("Turn :" + Globals.gameData.currentTurn);
 			Globals.scene.start(new GameScene());
 
 		} else if (msgType == "waitTimer") {
+
+			
+			if(!Globals.hasJoinedTable)
+				return;
+
+
 			if (Object.keys(Globals.gameData.tempPlayerData).length == 1)
+			{
 				this.waitingText.text = "Waiting for Others.. " + msgParams.data;
+				this.switchBtn.setActive(false);
+			}
 			else
+			{
 				this.waitingText.text = "Game starting in.. " + msgParams.data;
+
+				if(msgParams.data <= 2)
+				{
+					this.switchBtn.setActive(false);
+
+				} else
+				{
+					this.switchBtn.setActive(true);
+				}
+			}
+
+
 		} else if (msgType == "joined") {
+
+			this.tempPlId = msgParams.plId;
+
+			console.log(Globals.gameData.tempPlayerData);
 
 			Object.values(Globals.gameData.tempPlayerData).forEach(player => {
 				this.activateAvatarImage(player.pImage, this.avatars[player.plId]);
 			});
 
+			// this.switchBtn.setActive(true);
 			//Init Avatars
 		} else if (msgType == "playerJoined") {
 
@@ -70,6 +157,9 @@ export class MainScene {
 			Globals.scene.start(new GameEndScene());
 		} else if (msgType == "socketConnection") {
 			this.triggerButtonActive();
+		} else if (msgType == "updateTableGameID")
+		{
+			this.updateTableGameID();
 		}
 		
 	}
@@ -294,6 +384,7 @@ export class MainScene {
 
 		this.createWaitingScreen();
 		this.createAvatars();
+
 	}
 
 	createBackground() {

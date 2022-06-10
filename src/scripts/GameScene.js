@@ -4,7 +4,7 @@ import {config } from "./appConfig";
 import { Background } from "./Background";
 import { boardData, PawnsHomeIndex, playerData, starsPosition } from "./boardConfig";
 import { DebugText } from "./DebugText";
-import { GameEndStates, Globals } from "./Globals";
+import { CurrentGameData, GameEndStates, Globals, utf8_to_b64 } from "./Globals";
 import { LudoBoard } from "./LudoBoard";
 import { Pawn } from "./Pawn";
 import { Player } from "./Player";
@@ -65,7 +65,24 @@ export class GameScene {
 		
 		
 		//this.updateProgress(0.5)
+		
+		this.createTableGameID();
 
+	}
+
+	createTableGameID()
+	{
+		
+		this.tableIdText = new DebugText(utf8_to_b64(CurrentGameData.tableGameID), 0, 0, "#3657ff", 24, "Luckiest Guy");
+		this.tableIdText.anchor.set(1);
+		this.tableIdText.x  = config.logicalWidth;
+		this.tableIdText.y = config.logicalHeight
+		this.container.addChild(this.tableIdText);
+	}
+
+	updateTableGameID()
+	{
+		this.tableIdText.text = utf8_to_b64(CurrentGameData.tableGameID);
 	}
 
     recievedMessage(msgType, msgParams)
@@ -230,6 +247,9 @@ export class GameScene {
 			
 			
 			
+		} else if (msgType == "updateTableGameID")
+		{
+			this.updateTableGameID();
 		}
     }
 
