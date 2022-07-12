@@ -184,7 +184,14 @@ export class Player
         
         this.playerBlock.y +=  80;
 
-        this.playerName = new PIXI.Text(Globals.gameData.players[this.playerID].pName);
+        let name = Globals.gameData.players[this.playerID].pName;
+        if(name.length > 12)
+        {
+            name = name.substring(0, 10);
+            name += "..."
+        }
+
+        this.playerName = new PIXI.Text(name);
         this.playerName.zIndex = 1;
         this.playerName.anchor.set(0.5);
         this.playerName.style = {
