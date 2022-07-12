@@ -43,6 +43,23 @@ export class App {
 		console.log(window.innerHeight)
 		console.log(this.app.renderer.view);
 
+		
+		window.onresize = (e) => {
+
+			const scaleFactor = Math.min(
+				window.innerWidth / logicalWidth,
+				window.innerHeight / logicalHeight
+			);
+				
+			config.scaleFactor = scaleFactor
+
+			this.app.renderer.view.style.width = `${window.innerWidth}px`;
+			this.app.renderer.view.style.height = `${window.innerHeight}px`;
+			this.app.renderer.resize(window.innerWidth, window.innerHeight);
+
+			Globals.scene.resize();
+
+		};
 
 
 

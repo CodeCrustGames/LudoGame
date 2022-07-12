@@ -253,13 +253,23 @@ export class GameScene {
 		}
     }
 
-    
+	resize()
+	{
+		this.fullbg.width = window.innerWidth;
+		this.fullbg.height = window.innerHeight;
+
+		this.container.x = config.leftX;
+		this.container.y = config.topY;
+		this.container.scale.set(config.scaleFactor);
+
+		
+	}
 
 	createBackground() {
-		const fullbg = new PIXI.Sprite(Globals.resources.background.texture);
-		fullbg.width = window.innerWidth;
-		fullbg.height = window.innerHeight;
-		this.sceneContainer.addChild(fullbg);
+		this.fullbg = new PIXI.Sprite(Globals.resources.background.texture);
+		this.fullbg.width = window.innerWidth;
+		this.fullbg.height = window.innerHeight;
+		this.sceneContainer.addChild(this.fullbg);
 
 		this.bg = new PIXI.Sprite(Globals.resources.gameBg.texture);
 		this.bg.width = config.logicalWidth;

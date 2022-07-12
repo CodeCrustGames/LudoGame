@@ -262,7 +262,7 @@ export class Socket {
 
 						if (Globals.gameEndState == GameEndStates.THREESKIPS) {
 							setTimeout(() => {
-								Globals.scene.start(new FinalScene());
+								Globals.scene.start(new FinalScene("You skipped three times!\nGet back."));
 							}, 2000);
 							Globals.gameEndState = GameEndStates.NONE;
 						} else
@@ -284,11 +284,17 @@ export class Socket {
 		}
 
 
+
+	
 	}
 
+
+	
 
 	sendMessage(msg) {
 		console.log("Message Sent : " + JSON.stringify(msg));
 		this.socket.send(JSON.stringify(msg));
 	}
 }
+
+

@@ -115,10 +115,11 @@ export class GameEndScene {
             this.updateTimer(msgParams.data);
 
 
+            let btnState = true;
+
             if(Object.keys(Globals.gameData.tempPlayerData).length == 1)
             {
                 this.waitingText.text = "Waiting for Others.. " + msgParams.data;
-                this.switchBtn.setActive(false);
             }
             else
             {
@@ -126,12 +127,14 @@ export class GameEndScene {
 
                 if(msgParams.data <= 2)
                 {
-                    this.switchBtn.setActive(false);
-                } else
-                {
-		            this.switchBtn.setActive(true);
+                    btnState = false;
                 }
             }
+
+            if(this.switchBtn.renderable != btnState)
+                this.switchBtn.setActive(btnState);
+
+            
         }else if (msgType == "playerJoined")
         {
             this.activateAvatarImage(Globals.gameData.tempPlayerData[msgParams.index].pImage, this.avatars[msgParams.index]);

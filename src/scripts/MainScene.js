@@ -113,31 +113,31 @@ export class MainScene {
 			if(!Globals.hasJoinedTable)
 				return;
 
+			
+			let btnState = true;
 
 			if (Object.keys(Globals.gameData.tempPlayerData).length == 1)
 			{
 				this.waitingText.text = "Waiting for Others.. " + msgParams.data;
-				this.switchBtn.setActive(false);
+				// this.switchBtn.setActive(false);
 			}
 			else
 			{
 				this.waitingText.text = "Game starting in.. " + msgParams.data;
 
 				if(msgParams.data <= 2)
-				{
-					this.switchBtn.setActive(false);
-
-				} else
-				{
-					this.switchBtn.setActive(true);
-				}
+					btnState = false;
 			}
+
+			if(this.switchBtn.renderable != btnState)
+				this.switchBtn.setActive(btnState);
 
 
 		} else if (msgType == "joined") {
 
 			this.tempPlId = msgParams.plId;
 
+			this.switchBtn.setActive(true);
 			console.log(Globals.gameData.tempPlayerData);
 
 			Object.values(Globals.gameData.tempPlayerData).forEach(player => {
@@ -385,6 +385,17 @@ export class MainScene {
 		this.createWaitingScreen();
 		this.createAvatars();
 
+	}
+
+
+	resize()
+	{
+		this.container.x = config.leftX;
+		this.container.y = config.topY;
+		this.container.scale.set(config.scaleFactor);
+
+		this.background.width = window.innerWidth;
+		this.background.height = window.innerHeight;
 	}
 
 	createBackground() {

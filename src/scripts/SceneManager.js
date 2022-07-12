@@ -8,6 +8,8 @@ import { config } from "./appConfig";
 export class SceneManager {
     constructor() {
         this.container = new PIXI.Container();
+
+        this.container.sortableChildren = true;
         this.scene = null;
 
 
@@ -15,6 +17,11 @@ export class SceneManager {
         this.showTableId.x += this.showTableId.width/2;
         this.showTableId.y += this.showTableId.height;
         this.container.addChild(this.showTableId);
+
+        this.showVersionID  = new DebugText("v0.6", 0, 0, "#fff", 12);
+        this.showVersionID.anchor.set(0);
+        this.showVersionID.zIndex = 99;
+        this.container.addChild(this.showVersionID);
     }
 
     start(scene) {
@@ -32,6 +39,14 @@ export class SceneManager {
                 
                 this.drawImageAbove();
             }
+    }
+
+    resize()
+    {
+        if(this.scene && this.scene.resize)
+        {
+            this.scene.resize();
+        }
     }
 
 
